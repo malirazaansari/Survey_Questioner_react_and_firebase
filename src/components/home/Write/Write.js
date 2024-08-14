@@ -31,6 +31,7 @@ export default function Write() {
 
   const savaData = async () => {
     const db = getDatabase(app);
+
     const newPostKey = push(ref(db, "posts/questions"));
     set(newPostKey, {
       question1: inputValue1,
@@ -129,39 +130,50 @@ export default function Write() {
           </ol>
         </div>
       </div>
-      <div>
-        <label>Question2</label>
+      <div className="space-y-4">
+        <label className="block text-lg font-medium text-gray-700">
+          Question2:{" "}
+        </label>
         <input
+          className="w-full p-2 border border-sky-500 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
           type="text"
           value={inputValue2}
           onChange={(e) => setInputValue2(e.target.value)}
         />
-        <div>
-          <ol>
-            <li>
+        <div className="space-y-2">
+          <ol className="flex items-center space-x-2">
+            <li className="font-medium text-gray-600">
+              Option 1
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue2option1}
                 onChange={(e) => setInputValue2option1(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 2
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue2option2}
                 onChange={(e) => setInputValue2option2(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 3
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue2option3}
                 onChange={(e) => setInputValue2option3(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 4
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue2option4}
                 onChange={(e) => setInputValue2option4(e.target.value)}
               />
@@ -169,38 +181,49 @@ export default function Write() {
           </ol>
         </div>
       </div>
-      <div>
-        <label>Question3</label>
+      <div className="space-y-4">
+        <label className="block text-lg font-medium text-gray-700">
+          Question3:{" "}
+        </label>
         <input
           type="text"
+          className="w-full p-2 border border-sky-500 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
           value={inputValue3}
           onChange={(e) => setInputValue3(e.target.value)}
         />
-        <div>
-          <ol>
-            <li>
+        <div className="space-y-2">
+          <ol className="flex items-center space-x-2">
+            <li className="font-medium text-gray-600">
+              Option 1
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue3option1}
                 onChange={(e) => setInputValue3option1(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 2
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue3option2}
                 onChange={(e) => setInputValue3option2(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 3
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue3option3}
                 onChange={(e) => setInputValue3option3(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 4
               <input
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 type="text"
                 value={inputValue3option4}
                 onChange={(e) => setInputValue3option4(e.target.value)}
@@ -209,39 +232,50 @@ export default function Write() {
           </ol>
         </div>
       </div>
-      <div>
-        <label>Question4</label>
+      <div className="space-y-4">
+        <label className="block text-lg font-medium text-gray-700">
+          Question4:{" "}
+        </label>
         <input
           type="text"
+          className="w-full p-2 border border-sky-500 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
           value={inputValue4}
           onChange={(e) => setInputValue4(e.target.value)}
         />
-        <div>
-          <ol>
-            <li>
+        <div className="space-y-2">
+          <ol className="flex items-center space-x-2">
+            <li className="font-medium text-gray-600">
+              Option 1
               <input
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 type="text"
                 value={inputValue4option1}
                 onChange={(e) => setInputValue4option1(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 2
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue4option2}
                 onChange={(e) => setInputValue4option2(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 3
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue4option3}
                 onChange={(e) => setInputValue4option3(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 4
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue4option4}
                 onChange={(e) => setInputValue4option4(e.target.value)}
               />
@@ -249,39 +283,50 @@ export default function Write() {
           </ol>
         </div>
       </div>
-      <div>
-        <label>Question5</label>
+      <div className="space-y-4">
+        <label className="block text-lg font-medium text-gray-700">
+          Question5:{" "}
+        </label>
         <input
           type="text"
+          className="w-full p-2 border border-sky-500 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
           value={inputValue5}
           onChange={(e) => setInputValue5(e.target.value)}
         />
-        <div>
-          <ol>
-            <li>
+        <div className="space-y-2">
+          <ol className="flex items-center space-x-2">
+            <li className="font-medium text-gray-600">
+              Option 1
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue5option1}
                 onChange={(e) => setInputValue5option1(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 2
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue5option2}
                 onChange={(e) => setInputValue5option2(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 3
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue5option3}
                 onChange={(e) => setInputValue5option3(e.target.value)}
               />
             </li>
-            <li>
+            <li className="font-medium text-gray-600">
+              Option 4
               <input
                 type="text"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
                 value={inputValue5option4}
                 onChange={(e) => setInputValue5option4(e.target.value)}
               />
@@ -297,56 +342,5 @@ export default function Write() {
         Save
       </button>
     </div>
-    // <div className="max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-lg">
-    //   <h1 className="text-2xl font-semibold mb-6 text-center">Add Questions</h1>
-
-    //   <div className="space-y-6">
-    //     {[...Array(5)].map((_, index) => (
-    //       <div key={index} className="space-y-4">
-    //         <label className="block text-lg font-medium text-gray-700">
-    //           Question {index + 1}:
-    //         </label>
-    //         <input
-    //           type="text"
-    //           className="w-full p-2 border border-sky-500 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
-    //           value={eval(`inputValue${index + 1}`)}
-    //           onChange={(e) =>
-    //             eval(`setInputValue${index + 1}`)(e.target.value)
-    //           }
-    //         />
-    //         <div className="space-y-2">
-    //           {[...Array(4)].map((_, optionIndex) => (
-    //             <div key={optionIndex} className="flex items-center space-x-2">
-    //               <span className="font-medium text-gray-600">
-    //                 Option {optionIndex + 1}:
-    //               </span>
-    //               <input
-    //                 type="text"
-    //                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500"
-    //                 value={eval(
-    //                   `inputValue${index + 1}option${optionIndex + 1}`
-    //                 )}
-    //                 onChange={(e) =>
-    //                   eval(`setInputValue${index + 1}option${optionIndex + 1}`)(
-    //                     e.target.value
-    //                   )
-    //                 }
-    //               />
-    //             </div>
-    //           ))}
-    //         </div>
-    //       </div>
-    //     ))}
-    //   </div>
-
-    //   <div className="mt-8 text-center">
-    //     <button
-    //       onClick={savaData}
-    //       className="px-6 py-3 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
-    //     >
-    //       Save
-    //     </button>
-    //   </div>
-    // </div>
   );
 }

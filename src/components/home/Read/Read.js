@@ -23,16 +23,23 @@ export default function Read() {
   };
 
   return (
-    <div>
-      <button onClick={fetchData}>Display Added Questions</button>
-      <ul>
-        {questionArray.map((item, index) => (
-          <li key={index}>
-            {item.question1}: {item.question2}: {item.question3}:{" "}
-            {item.question4}: {item.question5}
-          </li>
-        ))}
-      </ul>
+    <div className="flex justify-center items-center m-12 p-12 mx-0 bg-gray-100 h-full w-full">
+      <div className="flex justify-center items-center  ">
+        <button
+          className="flex justify-center align-center px-6  py-3 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          onClick={fetchData}
+        >
+          Display Added Questions
+        </button>
+        <ul>
+          {questionArray.map((item, index) => (
+            <li key={index}>
+              {item.question1}: {item.question2}: {item.question3}:{" "}
+              {item.question4}: {item.question5}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

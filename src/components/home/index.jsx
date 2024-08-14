@@ -1,11 +1,7 @@
 import React from "react";
-import { useAuth } from "../../contexts/authContext";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-
-import Write from "./Write/Write";
+import { Link } from "react-router-dom";
 
 const Home = () => {
-  const { currentUser } = useAuth();
   return (
     <div>
       <div className="gap-x-6 gap-y-0 flex flex-wrap grid-rows-2 -mx-3 -mt-0 mx-auto w-full">
@@ -42,7 +38,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-      {/* <Write /> */}
     </div>
   );
 };
