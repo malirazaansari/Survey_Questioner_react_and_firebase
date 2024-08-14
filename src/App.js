@@ -11,6 +11,8 @@ import { AuthProvider } from "./contexts/authContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Write from "./components/home/Write/Write";
 import Read from "./components/home/Read/Read";
+import StudentSurvay from "./components/home/StudentSurvay/StudentSurvay";
+import Student from "./components/home/Student/Student";
 function App() {
   // const routesArray = [
   //   {
@@ -38,12 +40,14 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="*" element={<Login />} />
+          <Route path="/" element={<Login />}></Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/" element={<Write />}></Route>
           <Route path="/Write" element={<Write />}></Route>
           <Route path="/Read" element={<Read />}></Route>
+          <Route path="/Student" element={<Student />}></Route>
+          <Route path="/StudentSurvay" element={<StudentSurvay />}></Route>
         </Routes>
       </div>
     </AuthProvider>
