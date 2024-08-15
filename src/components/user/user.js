@@ -164,7 +164,10 @@ class User extends Component {
           <h1 className="text-3xl font-bold mb-4">
             Hey! Please enter Your name.
           </h1>
-          <form onSubmit={this.studentNameSubmit}>
+          <form
+            className="flex flex-col justify-center items-center"
+            onSubmit={this.studentNameSubmit}
+          >
             <input
               className="text-3xl p-5 w-50 p-4 pl-10 text-lg text-gray-700 border border-gray-300 rounded"
               type="text"
@@ -172,7 +175,7 @@ class User extends Component {
               ref={(input) => (this.nameInput = input)}
             />
             <button
-              className="mt-2 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+              className="mt-2 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded w-36"
               type="submit"
             >
               Submit
