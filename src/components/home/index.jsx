@@ -31,7 +31,7 @@ const Home = () => {
                   <Link to={"/Read"}>Veiw Added Questions</Link>
                 </button>
                 <button className="inline-block cursor-pointer mx-2 mb-0 px-5 py-3 border-0 font-bold text-lg text-white bg-gradient-to-b from-blue-400 to-blue-600 shadow-md">
-                  <Link to={"/StudentSurvay"}>Veiw Survays Questions</Link>
+                  <Link to={"/StudentSurvay"}>Genrate Survay Link</Link>
                 </button>
                 <button className="inline-block cursor-pointer mx-2 mb-0 px-5 py-3 border-0 font-bold text-lg text-white bg-gradient-to-b from-blue-400 to-blue-600 shadow-md">
                   <Link to={"/Student"}>Veiw Submits</Link>

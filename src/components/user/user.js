@@ -1,8 +1,214 @@
+import React, { Component } from "react";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue, set } from "firebase/database";
+import { v1 as uuidv1 } from "uuid";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNt8JbuC1e87ZUB3DJMUmNkAUjSFqiLRo",
+  authDomain: "surway-complete-project.firebaseapp.com",
+  databaseURL:
+    "https://surway-complete-project-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "surway-complete-project",
+  storageBucket: "surway-complete-project.appspot.com",
+  messagingSenderId: "667821375242",
+  appId: "1:667821375242:web:956e4f42b8f1cda70344f3",
+  measurementId: "G-R6HWN39XB8",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+class User extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      uid: uuidv1(),
+      studentName: "",
+      answers: {},
+      isSubmitted: false,
+      questions: [],
+    };
+    this.studentNameSubmit = this.studentNameSubmit.bind(this);
+    this.surveySubmit = this.surveySubmit.bind(this);
+    this.answerSelected = this.answerSelected.bind(this);
+    this.fetchQuestions = this.fetchQuestions.bind(this);
+  }
+
+  componentDidMount() {
+    this.fetchQuestions();
+  }
+
+  fetchQuestions() {
+    const questionsRef = ref(database, "posts/questions");
+
+    onValue(questionsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const questions = [];
+
+        // Iterate through questions data to format it properly
+        for (const key in data) {
+          if (data.hasOwnProperty(key)) {
+            for (const qKey in data[key]) {
+              if (data[key].hasOwnProperty(qKey)) {
+                questions.push({
+                  questionText: data[key][qKey].questionText,
+                  options: Object.values(data[key][qKey].options || []), // Ensure options are properly formatted
+                });
+              }
+            }
+          }
+        }
+
+        this.setState({ questions });
+      } else {
+        console.log("No questions available.");
+      }
+    });
+  }
+
+  studentNameSubmit(event) {
+    event.preventDefault();
+    const name = this.nameInput.value;
+    this.setState({ studentName: name });
+  }
+
+  surveySubmit(event) {
+    event.preventDefault();
+    const { uid, studentName, answers } = this.state;
+
+    set(ref(database, "posts/survayanswers/" + uid), {
+      studentName,
+      answers,
+    })
+      .then(() => this.setState({ isSubmitted: true }))
+      .catch((error) => console.error("Error submitting survey:", error));
+  }
+
+  answerSelected(event) {
+    const { name, value } = event.target;
+    this.setState((prevState) => ({
+      answers: { ...prevState.answers, [name]: value },
+    }));
+  }
+
+  render() {
+    const { studentName, isSubmitted, questions } = this.state;
+
+    let nameContent;
+    let questionsContent;
+
+    if (!studentName && !isSubmitted) {
+      nameContent = (
+        <div className="max-w-md mx-auto p-8 bg-blue shadow-md rounded">
+          <h1 className="text-3xl font-bold mb-4">
+            Hey! Please enter Your name.
+          </h1>
+          <form
+            className="flex flex-col justify-center items-center"
+            onSubmit={this.studentNameSubmit}
+          >
+            <input
+              className="text-3xl p-5 w-50 p-4 pl-10 text-lg text-gray-700 border border-gray-300 rounded"
+              type="text"
+              placeholder="Enter your name"
+              ref={(input) => (this.nameInput = input)}
+            />
+            <button
+              className="mt-2 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded w-36"
+              type="submit"
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      );
+    } else if (studentName && !isSubmitted) {
+      nameContent = (
+        <h1 className="text-3xl font-bold mb-4">
+          Welcome {studentName} to our survey
+        </h1>
+      );
+
+      questionsContent = (
+        <div>
+          <h1 className="text-3xl font-bold mb-4">Here are some questions.</h1>
+          <form onSubmit={this.surveySubmit}>
+            {questions.map((question, index) => (
+              <div
+                key={index}
+                className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49"
+              >
+                <label className="block text-lg font-bold mb-2">
+                  Question {index + 1}: {question.questionText}
+                </label>
+                <div className="flex flex-wrap -mx-4">
+                  {question.options.map((option, optionIndex) => (
+                    <div className="w-1/2 px-4 mb-4" key={optionIndex}>
+                      <input
+                        type="radio"
+                        className="mr-2"
+                        name={`ans${index + 1}`}
+                        value={option}
+                        onChange={this.answerSelected}
+                      />
+                      <span className="text-gray-700">{option}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <input
+              className="inline-block cursor-pointer mx-2 mb-0 mr-0 px-5 py-3 border-0 font-bold rounded my-2 text-lg text-white bg-gradient-to-b from-orange-400 to-orange-600 shadow-md;"
+              type="submit"
+              value="Submit"
+            />
+          </form>
+        </div>
+      );
+    } else if (studentName && isSubmitted) {
+      nameContent = (
+        <h1 className="text-3xl font-bold mb-4">
+          Thank You! "{studentName}" for submitting your answers.
+        </h1>
+      );
+    }
+
+    return (
+      <div>
+        {nameContent}
+        ==========================
+        {questionsContent}
+      </div>
+    );
+  }
+}
+
+export default User;
+
 // import React, { Component } from "react";
-// import app from "../../firebase/firebase";
-// import { getDatabase, ref, onValue, set } from "firebase/database";
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
 // import firebase from "firebase/compat/app";
+// import "firebase/compat/database";
 // var uuid = require("uuid");
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyDNt8JbuC1e87ZUB3DJMUmNkAUjSFqiLRo",
+//   authDomain: "surway-complete-project.firebaseapp.com",
+//   databaseURL:
+//     "https://surway-complete-project-default-rtdb.europe-west1.firebasedatabase.app",
+//   projectId: "surway-complete-project",
+//   storageBucket: "surway-complete-project.appspot.com",
+//   messagingSenderId: "667821375242",
+//   appId: "1:667821375242:web:956e4f42b8f1cda70344f3",
+//   measurementId: "G-R6HWN39XB8",
+// };
+
+// // Initialize Firebase
+// const app = firebase.initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
 
 // class User extends Component {
 //   constructor(props) {
@@ -34,9 +240,9 @@
 
 //   surveySubmit(event) {
 //     event.preventDefault();
-//     firebase(app)
+//     firebase
 //       .database()
-//       .ref("studentSurway/" + this.state.uid)
+//       .ref("posts/survayanswers/" + this.state.uid)
 //       .set({
 //         studentName: this.state.studentName,
 //         answers: this.state.answers,
@@ -67,410 +273,324 @@
 //       console.log(this.state);
 //     });
 //   }
-import React, { Component } from "react";
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import firebase from "firebase/compat/app";
-import "firebase/compat/database";
-var uuid = require("uuid");
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDNt8JbuC1e87ZUB3DJMUmNkAUjSFqiLRo",
-  authDomain: "surway-complete-project.firebaseapp.com",
-  databaseURL:
-    "https://surway-complete-project-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "surway-complete-project",
-  storageBucket: "surway-complete-project.appspot.com",
-  messagingSenderId: "667821375242",
-  appId: "1:667821375242:web:956e4f42b8f1cda70344f3",
-  measurementId: "G-R6HWN39XB8",
-};
+//   render() {
+//     var name = "";
+//     var questions = "";
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+//     if (this.state.studentName == "" && this.state.isSubmitted == false) {
+//       name = (
+//         <div className="max-w-md mx-auto p-8 bg-blue shadow-md rounded">
+//           <h1 className="text-3xl font-bold mb-4">
+//             Hey! Please enter Your name.
+//           </h1>
+//           <form
+//             className="flex flex-col justify-center items-center"
+//             onSubmit={this.studentNameSubmit}
+//           >
+//             <input
+//               className="text-3xl p-5 w-50 p-4 pl-10 text-lg text-gray-700 border border-gray-300 rounded"
+//               type="text"
+//               placeholder="Enter your name"
+//               ref={(input) => (this.nameInput = input)}
+//             />
+//             <button
+//               className="mt-2 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded w-36"
+//               type="submit"
+//             >
+//               Submit
+//             </button>
+//           </form>
+//         </div>
+//       );
+//     } else if (
+//       this.state.studentName !== "" &&
+//       this.state.isSubmitted == false
+//     ) {
+//       name = (
+//         <div>
+//           <h1 className="text-3xl font-bold mb-4">
+//             Welcome {this.state.studentName} to our surway
+//           </h1>
+//         </div>
+//       );
+//       questions = (
+//         <div>
+//           <h1 className="text-3xl font-bold mb-4">Here are some quetions.</h1>
+//           <form onSubmit={this.surveySubmit}>
+//             <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
+//               <label className="block text-lg font-bold mb-2">
+//                 Question 1: What do you like Most?
+//               </label>
+//               <br />
+//               <div className="flex flex-wrap -mx-4">
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans1"
+//                     value="sports"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Sports</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans1"
+//                     value="Technology"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Technology</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans1"
+//                     value="Movies"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Movies</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans1"
+//                     value="Study"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Study</span>
+//                 </div>
+//               </div>
+//             </div>
 
-class User extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      uid: uuid.v1(),
-      studentName: "",
-      answers: {
-        ans1: "",
-        ans2: "",
-        ans3: "",
-        ans4: "",
-        ans5: "",
-      },
-      isSubmitted: false,
-    };
-    this.studentNameSubmit = this.studentNameSubmit.bind(this);
-    this.surveySubmit = this.surveySubmit.bind(this);
-    this.answerSelected = this.answerSelected.bind(this);
-  }
+//             <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
+//               <label className="block text-lg font-bold mb-2">
+//                 Question 2: Which Programming Language to you like Most?
+//               </label>
+//               <br />
+//               <div className="flex flex-wrap -mx-4">
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans2"
+//                     value="JavaScript"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">JavaScript</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans2"
+//                     value="Dotnet"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Dotnet</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans2"
+//                     value="Python"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Python</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans2"
+//                     value="Dart"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Dart</span>
+//                 </div>
+//               </div>
+//             </div>
 
-  studentNameSubmit(event) {
-    event.preventDefault();
-    var name = this.nameInput.value;
-    this.setState({ studentName: name }, function () {
-      console.log(this.state);
-    });
-  }
+//             <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
+//               <label className="block text-lg font-bold mb-2">
+//                 Question 3: Which sports do you play?
+//               </label>
+//               <br />
+//               <div className="flex flex-wrap -mx-4">
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans3"
+//                     value="Cricket"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Cricket</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans3"
+//                     value="Football"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Football</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans3"
+//                     value="Bedminton"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Bedminton</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans3"
+//                     value="Table_Tennis"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Table Tennis</span>
+//                 </div>
+//               </div>
+//             </div>
 
-  surveySubmit(event) {
-    event.preventDefault();
-    firebase
-      .database()
-      .ref("posts/survayanswers/" + this.state.uid)
-      .set({
-        studentName: this.state.studentName,
-        answers: this.state.answers,
-      })
-      .then(() => {
-        this.setState({ isSubmitted: true });
-      })
-      .catch((error) => {
-        console.error("Error submitting survey:", error);
-      });
-    // this.setState({ isSubmitted: true });
-  }
-  answerSelected(event) {
-    var answers = this.state.answers;
+//             <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
+//               <label className="block text-lg font-bold mb-2">
+//                 Question 4: Favorite Place to visit?
+//               </label>
+//               <br />
+//               <div className="flex flex-wrap -mx-4">
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans4"
+//                     value="London"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">London</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans4"
+//                     value="Paris"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Paris</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans4"
+//                     value="NewYork"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">NewYork</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans4"
+//                     value="Chicago"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Chicago</span>
+//                 </div>
+//               </div>
+//             </div>
 
-    if (event.target.name == "ans1") {
-      answers.ans1 = event.target.value;
-    } else if (event.target.name == "ans2") {
-      answers.ans2 = event.target.value;
-    } else if (event.target.name == "ans3") {
-      answers.ans3 = event.target.value;
-    } else if (event.target.name == "ans4") {
-      answers.ans4 = event.target.value;
-    } else if (event.target.name == "ans5") {
-      answers.ans5 = event.target.value;
-    }
-    this.setState({ answers: answers }, function () {
-      console.log(this.state);
-    });
-  }
+//             <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
+//               <label className="block text-lg font-bold mb-2">
+//                 Question 5: You are?
+//               </label>
+//               <br />
+//               <div className="flex flex-wrap -mx-4">
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans5"
+//                     value="Student"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Student</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans5"
+//                     value="Looking_for_Job"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Looking for Job</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans5"
+//                     value="Employed"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">Employed</span>
+//                 </div>
+//                 <div className="w-1/2 px-4 mb-4">
+//                   <input
+//                     type="radio"
+//                     className="mr-2"
+//                     name="ans5"
+//                     value="none"
+//                     onChange={this.answerSelected}
+//                   />
+//                   <span className="text-gray-700">none</span>
+//                 </div>
+//               </div>
+//             </div>
+//             <input
+//               className="@apply inline-block cursor-pointer mx-2 mb-0 mr-0 px-5 py-3 border-0 font-bold rounded my-2 text-lg text-white bg-gradient-to-b from-orange-400 to-orange-600 shadow-md;"
+//               type="submit"
+//               value="submit"
+//             />
+//           </form>
+//         </div>
+//       );
+//     } else if (
+//       this.state.studentName !== "" &&
+//       this.state.isSubmitted == true
+//     ) {
+//       name = (
+//         <div>
+//           <h1 className="text-3xl font-bold mb-4">
+//             Thank You! "{this.state.studentName}" for submitting your answers.
+//           </h1>
+//         </div>
+//       );
+//     }
 
-  render() {
-    var name = "";
-    var questions = "";
+//     return (
+//       <div>
+//         {name}
+//         ==========================
+//         {questions}
+//       </div>
+//     );
+//   }
+// }
 
-    if (this.state.studentName == "" && this.state.isSubmitted == false) {
-      name = (
-        <div className="max-w-md mx-auto p-8 bg-blue shadow-md rounded">
-          <h1 className="text-3xl font-bold mb-4">
-            Hey! Please enter Your name.
-          </h1>
-          <form
-            className="flex flex-col justify-center items-center"
-            onSubmit={this.studentNameSubmit}
-          >
-            <input
-              className="text-3xl p-5 w-50 p-4 pl-10 text-lg text-gray-700 border border-gray-300 rounded"
-              type="text"
-              placeholder="Enter your name"
-              ref={(input) => (this.nameInput = input)}
-            />
-            <button
-              className="mt-2 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded w-36"
-              type="submit"
-            >
-              Submit
-            </button>
-          </form>
-        </div>
-      );
-    } else if (
-      this.state.studentName !== "" &&
-      this.state.isSubmitted == false
-    ) {
-      name = (
-        <div>
-          <h1 className="text-3xl font-bold mb-4">
-            Welcome {this.state.studentName} to our surway
-          </h1>
-        </div>
-      );
-      questions = (
-        <div>
-          <h1 className="text-3xl font-bold mb-4">Here are some quetions.</h1>
-          <form onSubmit={this.surveySubmit}>
-            <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
-              <label className="block text-lg font-bold mb-2">
-                Question 1: What do you like Most?
-              </label>
-              <br />
-              <div className="flex flex-wrap -mx-4">
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans1"
-                    value="sports"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Sports</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans1"
-                    value="Technology"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Technology</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans1"
-                    value="Movies"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Movies</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans1"
-                    value="Study"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Study</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
-              <label className="block text-lg font-bold mb-2">
-                Question 2: Which Programming Language to you like Most?
-              </label>
-              <br />
-              <div className="flex flex-wrap -mx-4">
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans2"
-                    value="JavaScript"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">JavaScript</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans2"
-                    value="Dotnet"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Dotnet</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans2"
-                    value="Python"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Python</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans2"
-                    value="Dart"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Dart</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
-              <label className="block text-lg font-bold mb-2">
-                Question 3: Which sports do you play?
-              </label>
-              <br />
-              <div className="flex flex-wrap -mx-4">
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans3"
-                    value="Cricket"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Cricket</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans3"
-                    value="Football"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Football</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans3"
-                    value="Bedminton"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Bedminton</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans3"
-                    value="Table_Tennis"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Table Tennis</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
-              <label className="block text-lg font-bold mb-2">
-                Question 4: Favorite Place to visit?
-              </label>
-              <br />
-              <div className="flex flex-wrap -mx-4">
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans4"
-                    value="London"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">London</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans4"
-                    value="Paris"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Paris</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans4"
-                    value="NewYork"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">NewYork</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans4"
-                    value="Chicago"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Chicago</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49">
-              <label className="block text-lg font-bold mb-2">
-                Question 5: You are?
-              </label>
-              <br />
-              <div className="flex flex-wrap -mx-4">
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans5"
-                    value="Student"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Student</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans5"
-                    value="Looking_for_Job"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Looking for Job</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans5"
-                    value="Employed"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">Employed</span>
-                </div>
-                <div className="w-1/2 px-4 mb-4">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    name="ans5"
-                    value="none"
-                    onChange={this.answerSelected}
-                  />
-                  <span className="text-gray-700">none</span>
-                </div>
-              </div>
-            </div>
-            <input
-              className="@apply inline-block cursor-pointer mx-2 mb-0 mr-0 px-5 py-3 border-0 font-bold rounded my-2 text-lg text-white bg-gradient-to-b from-orange-400 to-orange-600 shadow-md;"
-              type="submit"
-              value="submit"
-            />
-          </form>
-        </div>
-      );
-    } else if (
-      this.state.studentName !== "" &&
-      this.state.isSubmitted == true
-    ) {
-      name = (
-        <div>
-          <h1 className="text-3xl font-bold mb-4">
-            Thank You! "{this.state.studentName}" for submitting your answers.
-          </h1>
-        </div>
-      );
-    }
-
-    return (
-      <div>
-        {name}
-        ==========================
-        {questions}
-      </div>
-    );
-  }
-}
-
-export default User;
+// export default User;
