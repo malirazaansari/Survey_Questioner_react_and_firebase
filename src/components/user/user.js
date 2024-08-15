@@ -26,12 +26,14 @@ class User extends Component {
       uid: uuidv1(),
       studentName: "",
       answers: {},
+      additionalInputs: {}, // To store additional inputs
       isSubmitted: false,
       questions: [],
     };
     this.studentNameSubmit = this.studentNameSubmit.bind(this);
     this.surveySubmit = this.surveySubmit.bind(this);
     this.answerSelected = this.answerSelected.bind(this);
+    this.additionalInputChanged = this.additionalInputChanged.bind(this);
     this.fetchQuestions = this.fetchQuestions.bind(this);
   }
 
@@ -47,14 +49,15 @@ class User extends Component {
         const data = snapshot.val();
         const questions = [];
 
-        // Iterate through questions data to format it properly
         for (const key in data) {
           if (data.hasOwnProperty(key)) {
             for (const qKey in data[key]) {
               if (data[key].hasOwnProperty(qKey)) {
                 questions.push({
                   questionText: data[key][qKey].questionText,
-                  options: Object.values(data[key][qKey].options || []), // Ensure options are properly formatted
+                  options: Object.values(data[key][qKey].options || []),
+                  requiresAdditionalInput:
+                    data[key][qKey].requiresAdditionalInput || false,
                 });
               }
             }
@@ -76,11 +79,14 @@ class User extends Component {
 
   surveySubmit(event) {
     event.preventDefault();
-    const { uid, studentName, answers } = this.state;
+    const { uid, studentName, answers, additionalInputs } = this.state;
+
+    // Combine answers and additionalInputs into one object
+    const allAnswers = { ...answers, ...additionalInputs };
 
     set(ref(database, "posts/survayanswers/" + uid), {
       studentName,
-      answers,
+      answers: allAnswers,
     })
       .then(() => this.setState({ isSubmitted: true }))
       .catch((error) => console.error("Error submitting survey:", error));
@@ -90,6 +96,16 @@ class User extends Component {
     const { name, value } = event.target;
     this.setState((prevState) => ({
       answers: { ...prevState.answers, [name]: value },
+    }));
+  }
+
+  additionalInputChanged(event, questionIndex) {
+    const { value } = event.target;
+    this.setState((prevState) => ({
+      additionalInputs: {
+        ...prevState.additionalInputs,
+        [`additionalInput${questionIndex}`]: value,
+      },
     }));
   }
 
@@ -138,12 +154,12 @@ class User extends Component {
             {questions.map((question, index) => (
               <div
                 key={index}
-                className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49"
+                className="max-w-md p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49 border border-gray-300 rounded-lg"
               >
                 <label className="block text-lg font-bold mb-2">
                   Question {index + 1}: {question.questionText}
                 </label>
-                <div className="flex flex-wrap -mx-4">
+                <div className="flex flex-wrap -mx-4 mb-4">
                   {question.options.map((option, optionIndex) => (
                     <div className="w-1/2 px-4 mb-4" key={optionIndex}>
                       <input
@@ -157,6 +173,24 @@ class User extends Component {
                     </div>
                   ))}
                 </div>
+                {question.requiresAdditionalInput && (
+                  <div className="mt-4">
+                    <label className="block text-md font-medium mb-2">
+                      Any reason:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Add any comments here..."
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-gray-50 text-gray-800"
+                      value={
+                        this.state.additionalInputs[
+                          `additionalInput${index}`
+                        ] || ""
+                      }
+                      onChange={(e) => this.additionalInputChanged(e, index)}
+                    />
+                  </div>
+                )}
               </div>
             ))}
             <input
