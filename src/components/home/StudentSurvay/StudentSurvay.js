@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import User from "../../user/user";
 
 export default function StudentSurvay() {
