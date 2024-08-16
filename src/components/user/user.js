@@ -4,15 +4,14 @@ import { getDatabase, ref, onValue, set } from "firebase/database";
 import { v1 as uuidv1 } from "uuid";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDNt8JbuC1e87ZUB3DJMUmNkAUjSFqiLRo",
-  authDomain: "surway-complete-project.firebaseapp.com",
-  databaseURL:
-    "https://surway-complete-project-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "surway-complete-project",
-  storageBucket: "surway-complete-project.appspot.com",
-  messagingSenderId: "667821375242",
-  appId: "1:667821375242:web:956e4f42b8f1cda70344f3",
-  measurementId: "G-R6HWN39XB8",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -79,10 +78,17 @@ class User extends Component {
 
   surveySubmit(event) {
     event.preventDefault();
-    const { uid, studentName, answers, additionalInputs } = this.state;
+    const { uid, studentName, answers, questions } = this.state;
 
-    // Combine answers and additionalInputs into one object
-    const allAnswers = { ...answers, ...additionalInputs };
+    const allAnswers = {};
+    questions.forEach((question, index) => {
+      const answerKey = `ans${index + 1}`;
+      allAnswers[answerKey] = {
+        selectedAnswer: answers[answerKey]?.selectedAnswer || "",
+        additionalInput: answers[answerKey]?.additionalInput || "",
+        questionText: question.questionText,
+      };
+    });
 
     set(ref(database, "posts/survayanswers/" + uid), {
       studentName,
@@ -92,19 +98,32 @@ class User extends Component {
       .catch((error) => console.error("Error submitting survey:", error));
   }
 
-  answerSelected(event) {
-    const { name, value } = event.target;
+  answerSelected(event, questionIndex) {
+    const { value } = event.target;
+    const answerKey = `ans${questionIndex + 1}`;
+
     this.setState((prevState) => ({
-      answers: { ...prevState.answers, [name]: value },
+      answers: {
+        ...prevState.answers,
+        [answerKey]: {
+          ...prevState.answers[answerKey],
+          selectedAnswer: value,
+        },
+      },
     }));
   }
 
   additionalInputChanged(event, questionIndex) {
     const { value } = event.target;
+    const answerKey = `ans${questionIndex + 1}`;
+
     this.setState((prevState) => ({
-      additionalInputs: {
-        ...prevState.additionalInputs,
-        [`additionalInput${questionIndex}`]: value,
+      answers: {
+        ...prevState.answers,
+        [answerKey]: {
+          ...prevState.answers[answerKey],
+          additionalInput: value,
+        },
       },
     }));
   }
@@ -167,7 +186,7 @@ class User extends Component {
                         className="mr-2"
                         name={`ans${index + 1}`}
                         value={option}
-                        onChange={this.answerSelected}
+                        onChange={(e) => this.answerSelected(e, index)}
                       />
                       <span className="text-gray-700">{option}</span>
                     </div>
@@ -183,9 +202,8 @@ class User extends Component {
                       placeholder="Add any comments here..."
                       className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-gray-50 text-gray-800"
                       value={
-                        this.state.additionalInputs[
-                          `additionalInput${index}`
-                        ] || ""
+                        this.state.answers[`ans${index + 1}`]
+                          ?.additionalInput || ""
                       }
                       onChange={(e) => this.additionalInputChanged(e, index)}
                     />

@@ -16,6 +16,7 @@ export default function Write() {
       requiresAdditionalInput: false, // New field to track if an additional input is required
     },
   ]);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const handleInputChange = (event, index, field) => {
     const newQuestions = [...questions];
@@ -80,7 +81,8 @@ export default function Write() {
         );
       }
 
-      alert("Questions and options saved successfully!");
+      // Show the success message
+      setShowSuccessMessage(true);
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
@@ -150,18 +152,41 @@ export default function Write() {
         </div>
       ))}
       <br />
-      <button
-        className="px-6 py-3 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
-        onClick={handleAddQuestion}
-      >
-        Add Another Question
-      </button>
-      <button
-        className="ml-4 px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-        onClick={handleSaveData}
-      >
-        Save
-      </button>
+      {showSuccessMessage ? (
+        <div className="p-4 mb-6 bg-green-100 border border-green-400 text-green-700 rounded">
+          <p>Questions added successfully!</p>
+          <button
+            className="mt-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+            onClick={() => {
+              // Redirect to home page
+              window.location.href = "/";
+            }}
+          >
+            OK
+          </button>
+        </div>
+      ) : (
+        <>
+          {questions.map((question, index) => (
+            <div key={index} className="space-y-4">
+              {/* Your existing question input fields here */}
+            </div>
+          ))}
+          <br />
+          <button
+            className="px-6 py-3 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            onClick={handleAddQuestion}
+          >
+            Add Another Question
+          </button>
+          <button
+            className="ml-4 px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+            onClick={handleSaveData}
+          >
+            Save
+          </button>
+        </>
+      )}
     </div>
   );
 }
