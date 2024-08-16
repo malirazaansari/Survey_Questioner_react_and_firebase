@@ -13,7 +13,7 @@ export default function Write() {
         { label: "Option 4", value: "" },
       ],
       showAddOptionButton: true,
-      requiresAdditionalInput: false, // New field to track if an additional input is required
+      requiresAdditionalInput: false,
     },
   ]);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -41,7 +41,7 @@ export default function Write() {
           { label: "Option 4", value: "" },
         ],
         showAddOptionButton: true,
-        requiresAdditionalInput: false, // Default value
+        requiresAdditionalInput: false,
       },
     ]);
   };
@@ -81,7 +81,6 @@ export default function Write() {
         );
       }
 
-      // Show the success message
       setShowSuccessMessage(true);
     } catch (error) {
       alert(`Error: ${error.message}`);
@@ -158,7 +157,6 @@ export default function Write() {
           <button
             className="mt-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
             onClick={() => {
-              // Redirect to home page
               window.location.href = "/";
             }}
           >
@@ -168,9 +166,7 @@ export default function Write() {
       ) : (
         <>
           {questions.map((question, index) => (
-            <div key={index} className="space-y-4">
-              {/* Your existing question input fields here */}
-            </div>
+            <div key={index} className="space-y-4"></div>
           ))}
           <br />
           <button

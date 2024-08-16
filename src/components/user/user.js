@@ -14,7 +14,6 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
@@ -25,7 +24,7 @@ class User extends Component {
       uid: uuidv1(),
       studentName: "",
       answers: {},
-      additionalInputs: {}, // To store additional inputs
+      additionalInputs: {},
       isSubmitted: false,
       questions: [],
     };
@@ -79,6 +78,14 @@ class User extends Component {
   surveySubmit(event) {
     event.preventDefault();
     const { uid, studentName, answers, questions } = this.state;
+
+    for (let i = 0; i < questions.length; i++) {
+      const answerKey = `ans${i + 1}`;
+      if (!answers[answerKey] || !answers[answerKey].selectedAnswer) {
+        alert(`Please answer question ${i + 1}.`);
+        return;
+      }
+    }
 
     const allAnswers = {};
     questions.forEach((question, index) => {

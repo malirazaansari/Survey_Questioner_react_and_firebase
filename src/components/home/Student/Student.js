@@ -18,7 +18,7 @@ export default function Student() {
     if (snapshot.exists()) {
       const questions = Object.entries(snapshot.val()).map(
         ([key, question]) => ({
-          id: key, // Ensure each question has an identifier
+          id: key,
           ...question,
         })
       );
@@ -55,7 +55,6 @@ export default function Student() {
                 <ol className="list-decimal list-inside pl-6 space-y-2">
                   {Object.entries(item.answers).map(
                     ([questionKey, answer], answerIndex) => {
-                      // Find the corresponding question by matching question text
                       const question = questionArray.find((q) =>
                         Object.values(q).some(
                           (questionData) =>
@@ -73,7 +72,6 @@ export default function Student() {
                               <span>Answer Selected: </span>"
                               {answer.selectedAnswer}"
                             </div>
-                            {/* Check for additional input */}
                             {answer.additionalInput && (
                               <div className="mt-2 p-2 border border-gray-300 rounded bg-gray-50">
                                 <span className="font-bold">
