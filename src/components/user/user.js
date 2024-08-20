@@ -114,6 +114,15 @@ const User = () => {
       studentName,
       answers: allAnswers,
     })
+      .then(() => {
+        // Increment the submission count for this survey
+        return update(
+          ref(database, `posts/surveys/${selectedSurveyId}/submissionCount`),
+          {
+            count: increment(1),
+          }
+        );
+      })
       .then(() => update(ref(database), updates))
       .then(() => setIsSubmitted(true))
       .catch((error) => console.error("Error submitting survey:", error));
