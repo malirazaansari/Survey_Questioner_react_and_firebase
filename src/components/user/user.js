@@ -115,7 +115,6 @@ const User = () => {
       answers: allAnswers,
     })
       .then(() => {
-        // Increment the submission count for this survey
         return update(
           ref(database, `posts/surveys/${selectedSurveyId}/submissionCount`),
           {

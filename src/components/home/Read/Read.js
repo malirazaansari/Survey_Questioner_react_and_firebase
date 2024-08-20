@@ -6,67 +6,6 @@ export default function Read() {
   const [surveyArray, setSurveyArray] = useState([]);
   const [analyticsData, setAnalyticsData] = useState({});
 
-  // const fetchSurveyData = async () => {
-  //   try {
-  //     const db = getDatabase(app);
-  //     const surveysRef = ref(db, "posts/surveys");
-  //     const snapshot = await get(surveysRef);
-
-  //     if (snapshot.exists()) {
-  //       const data = snapshot.val();
-  //       if (data) {
-  //         const surveys = await Promise.all(
-  //           Object.keys(data).map(async (surveyKey) => {
-  //             const survey = data[surveyKey];
-  //             const questionsRef = ref(
-  //               db,
-  //               `posts/surveys/${surveyKey}/questions`
-  //             );
-  //             const questionsSnapshot = await get(questionsRef);
-  //             const questionsData = questionsSnapshot.exists()
-  //               ? questionsSnapshot.val()
-  //               : {};
-
-  //             const questions = Object.keys(questionsData).map(
-  //               (questionKey) => {
-  //                 const questionData = questionsData[questionKey];
-  //                 return {
-  //                   questionText:
-  //                     questionData.questionText || "No question text provided",
-  //                   options: questionData.options || [],
-  //                 };
-  //               }
-  //             );
-
-  //             const surveyAnswersRef = ref(
-  //               db,
-  //               `posts/survayanswers/${surveyKey}`
-  //             );
-  //             const surveyAnswersSnapshot = await get(surveyAnswersRef);
-  //             const submittedCount = surveyAnswersSnapshot.exists()
-  //               ? Object.keys(surveyAnswersSnapshot.val()).length
-  //               : 0;
-
-  //             return {
-  //               surveyKey,
-  //               name: survey.name || "Unnamed Survey",
-  //               questions,
-  //               submittedCount,
-  //             };
-  //           })
-  //         );
-
-  //         setSurveyArray(surveys);
-  //       } else {
-  //         alert("No surveys found");
-  //       }
-  //     } else {
-  //       alert("No surveys found");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching survey data:", error.message);
-  //   }
-  // };
   const fetchSurveyData = async () => {
     try {
       const db = getDatabase(app);
@@ -99,14 +38,12 @@ export default function Read() {
                 }
               );
 
-              // Fetch the submission count for this survey
               const submissionCountRef = ref(
                 db,
                 `posts/surveys/${surveyKey}/submissionCount`
               );
               const submissionCountSnapshot = await get(submissionCountRef);
 
-              // Log the submission count snapshot for debugging
               console.log(
                 "Submission Count Snapshot:",
                 submissionCountSnapshot.val()
@@ -116,7 +53,6 @@ export default function Read() {
                 ? submissionCountSnapshot.val().count || 0
                 : 0;
 
-              // Log the survey key and submitted count for debugging
               console.log(`Survey Key: ${surveyKey}`);
               console.log(`Submitted Count: ${submittedCount}`);
 
