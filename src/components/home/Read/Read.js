@@ -44,17 +44,9 @@ export default function Read() {
               );
               const submissionCountSnapshot = await get(submissionCountRef);
 
-              console.log(
-                "Submission Count Snapshot:",
-                submissionCountSnapshot.val()
-              );
-
               const submittedCount = submissionCountSnapshot.exists()
                 ? submissionCountSnapshot.val().count || 0
                 : 0;
-
-              console.log(`Survey Key: ${surveyKey}`);
-              console.log(`Submitted Count: ${submittedCount}`);
 
               return {
                 surveyKey,
@@ -65,7 +57,6 @@ export default function Read() {
             })
           );
 
-          console.log("Surveys fetched:", surveys);
           setSurveyArray(surveys);
         } else {
           alert("No surveys found");
@@ -89,9 +80,11 @@ export default function Read() {
         setAnalyticsData(data);
       } else {
         console.log("No analytics data found.");
+        setAnalyticsData({}); // Clear analytics data
       }
     } catch (error) {
       console.error("Error fetching analytics data:", error.message);
+      setAnalyticsData({}); // Clear analytics data on error
     }
   };
 
@@ -157,33 +150,42 @@ export default function Read() {
                 surveyArray.map((survey, surveyIndex) => (
                   <div key={surveyIndex}>
                     <h3 className="text-xl font-semibold mb-2">
-                      {survey.name} - {survey.submittedCount}{" "}
-                      {survey.submittedCount === 1 ? "response" : "responses"}
+                      {survey.name} - ({survey.submittedCount}{" "}
+                      {survey.submittedCount === 1
+                        ? "submission"
+                        : "submissions"}
+                      )
                     </h3>
-                    {survey.questions.map((item, index) => (
-                      <div
-                        key={index}
-                        className="p-4 bg-gray-50 rounded-lg shadow-md mb-4"
-                      >
-                        <p className="text-lg font-semibold mb-2">
-                          <strong>Question {index + 1}:</strong>{" "}
-                          {item.questionText}
-                        </p>
-                        <ul className="list-disc list-inside pl-4">
-                          {item.options.length > 0 ? (
-                            item.options.map((option, idx) => (
-                              <li key={idx} className="text-gray-700">
-                                Option {idx + 1}: {option}
-                              </li>
-                            ))
-                          ) : (
-                            <li className="text-gray-500">
-                              No options available
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    ))}
+                    {survey.questions.map((item, index) => {
+                      const analytics =
+                        analyticsData[survey.surveyKey]?.[item.questionText] ||
+                        {};
+                      return (
+                        <div
+                          key={index}
+                          className="p-4 bg-gray-50 rounded-lg shadow-md mb-4"
+                        >
+                          <p className="text-lg font-semibold mb-2">
+                            <strong>Question {index + 1}:</strong>{" "}
+                            {item.questionText}
+                          </p>
+                          <ul className="list-disc list-inside pl-4">
+                            {item.options
+                              .map((option, idx) => ({
+                                option,
+                                count: analytics[option]?.count || 0,
+                              }))
+                              .filter(({ count }) => count > 0)
+                              .map(({ option, count }, idx) => (
+                                <li key={idx} className="text-gray-700">
+                                  Option {idx + 1}: {option} - ({count}{" "}
+                                  {count === 1 ? "submission" : "submissions"})
+                                </li>
+                              ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
                   </div>
                 ))
               ) : (

@@ -56,25 +56,21 @@ export default function Student() {
                   {Object.entries(item.answers).map(
                     ([questionKey, answer], answerIndex) => (
                       <li key={answerIndex} className="text-gray-700">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-gray-900">
-                            {answer.questionText || "Unknown Question"}
-                          </span>
-                          <div className="text-gray-600 mt-1">
-                            <span>Answer Selected: </span>
-                            {Array.isArray(answer.selectedAnswer)
-                              ? answer.selectedAnswer.join(", ")
-                              : answer.selectedAnswer}
-                          </div>
-                          {answer.additionalInput && (
-                            <div className="mt-2 p-2 border border-gray-300 rounded bg-gray-50">
-                              <span className="font-bold">
-                                Additional Input:
-                              </span>
-                              <p>{answer.additionalInput}</p>
-                            </div>
-                          )}
+                        <span className="font-bold text-gray-900">
+                          {answer.questionText || "Unknown Question"}
+                        </span>
+                        <div className="text-gray-600 mt-1">
+                          <span>Answer Selected: </span>
+                          {Array.isArray(answer.selectedAnswer)
+                            ? answer.selectedAnswer.join(", ")
+                            : answer.selectedAnswer}
                         </div>
+                        {answer.additionalInput && (
+                          <div className="mt-2 p-2 border border-gray-300 rounded bg-gray-50">
+                            <span className="font-bold">Additional Input:</span>
+                            <p>{answer.additionalInput}</p>
+                          </div>
+                        )}
                       </li>
                     )
                   )}
