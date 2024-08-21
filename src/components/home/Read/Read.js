@@ -170,7 +170,7 @@ export default function Read() {
           <div className="w-1/2">
             <h2 className="text-2xl font-semibold mb-4">Survey Analytics</h2>
 
-            {/* <div className="w-full mb-6">
+            <div className="w-full mb-6">
               <h2 className="text-2xl font-semibold mb-4">
                 Survey Submission Counts
               </h2>
@@ -186,7 +186,7 @@ export default function Read() {
                   <Bar dataKey="submissionCount" fill="#82ca9d" />
                 </BarChart>
               </BarResponsiveContainer>
-            </div> */}
+            </div>
 
             <div className="space-y-6">
               {surveyArray.length > 0 ? (
