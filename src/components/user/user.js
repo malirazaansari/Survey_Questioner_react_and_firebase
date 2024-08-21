@@ -6,12 +6,14 @@ import { v1 as uuidv1 } from "uuid";
 const User = () => {
   const [uid] = useState(uuidv1());
   const [studentName, setStudentName] = useState("");
+  const [studentEmail, setStudentEmail] = useState("");
   const [answers, setAnswers] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [surveys, setSurveys] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const nameInputRef = useRef(null);
+  const emailInputRef = useRef(null);
 
   useEffect(() => {
     fetchSurveys();
@@ -64,7 +66,13 @@ const User = () => {
   const studentNameSubmit = (event) => {
     event.preventDefault();
     const name = nameInputRef.current.value;
+    const email = emailInputRef.current.value;
+    if (!name || !email) {
+      alert("Please fill in both your name and email.");
+      return;
+    }
     setStudentName(name);
+    setStudentEmail(email);
   };
 
   const surveySubmit = (event) => {
@@ -112,6 +120,7 @@ const User = () => {
 
     set(ref(database, `posts/survayanswers/${uid}/${selectedSurveyId}`), {
       studentName,
+      studentEmail,
       answers: allAnswers,
     })
       .then(() => {
@@ -170,17 +179,23 @@ const User = () => {
     nameContent = (
       <div className="max-w-md mx-auto p-8 bg-blue shadow-md rounded">
         <h1 className="text-3xl font-bold mb-4">
-          Hey! Please enter Your name.
+          Hey! Please enter your name and email.
         </h1>
         <form
           className="flex flex-col justify-center items-center"
           onSubmit={studentNameSubmit}
         >
           <input
-            className="text-3xl p-5 w-50 p-4 pl-10 text-lg text-gray-700 border border-gray-300 rounded"
+            className="text-3xl p-5 w-50 p-4 pl-10 text-lg text-gray-700 border border-gray-300 rounded mb-4"
             type="text"
             placeholder="Enter your name"
             ref={nameInputRef}
+          />
+          <input
+            className="text-3xl p-5 w-50 p-4 pl-10 text-lg text-gray-700 border border-gray-300 rounded mb-4"
+            type="email"
+            placeholder="Enter your email"
+            ref={emailInputRef}
           />
           <button
             className="mt-2 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded w-36"

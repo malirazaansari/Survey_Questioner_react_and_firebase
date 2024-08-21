@@ -50,7 +50,17 @@ export default function Student() {
             answerArray.map((item, index) => (
               <div key={index} className="p-4 bg-gray-50 rounded-lg shadow-md">
                 <p className="text-xl font-semibold mb-2">
-                  <strong>Student Name:</strong> {item.studentName}
+                  <div>
+                    <strong>Student Name:</strong> {item.studentName}
+                  </div>
+                  <div>
+                    <strong>Student Email:</strong>{" "}
+                    {item.studentEmail ? (
+                      item.studentEmail
+                    ) : (
+                      <span className="text-red-600">Old survey done</span>
+                    )}
+                  </div>
                 </p>
                 <ol className="list-decimal list-inside pl-6 space-y-2">
                   {Object.entries(item.answers).map(
