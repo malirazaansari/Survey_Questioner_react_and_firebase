@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from "react";
 import app from "../../../firebase/firebase";
 import { getDatabase, ref, get } from "firebase/database";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip as PieTooltip,
+  ResponsiveContainer as PieResponsiveContainer,
+} from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as BarTooltip,
+  ResponsiveContainer as BarResponsiveContainer,
+} from "recharts";
 
 export default function Read() {
   const [surveyArray, setSurveyArray] = useState([]);
@@ -94,7 +109,12 @@ export default function Read() {
     fetchAnalyticsData();
   }, []);
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#B57EDC"];
+
+  const barChartData = surveyArray.map((survey) => ({
+    name: survey.name,
+    submissionCount: survey.submittedCount,
+  }));
 
   return (
     <div className="flex justify-center items-center m-12 p-12 bg-gray-100 min-h-screen">
@@ -102,6 +122,7 @@ export default function Read() {
         <h1 className="text-3xl font-bold text-center mb-6">
           Survey Questions & Analytics
         </h1>
+
         <div className="flex space-x-6">
           <div className="w-1/2">
             <h2 className="text-2xl font-semibold mb-4">Survey Questions</h2>
@@ -148,6 +169,25 @@ export default function Read() {
 
           <div className="w-1/2">
             <h2 className="text-2xl font-semibold mb-4">Survey Analytics</h2>
+
+            {/* <div className="w-full mb-6">
+              <h2 className="text-2xl font-semibold mb-4">
+                Survey Submission Counts
+              </h2>
+              <BarResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={barChartData}
+                  margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <BarTooltip />
+                  <Bar dataKey="submissionCount" fill="#82ca9d" />
+                </BarChart>
+              </BarResponsiveContainer>
+            </div> */}
+
             <div className="space-y-6">
               {surveyArray.length > 0 ? (
                 surveyArray.map((survey, surveyIndex) => (
@@ -195,7 +235,7 @@ export default function Read() {
                           </ul>
                           {pieData.length > 0 && (
                             <div className="mt-4 bg-slate-200 rounded">
-                              <ResponsiveContainer width="100%" height={300}>
+                              <PieResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                   <Pie
                                     data={pieData}
@@ -216,9 +256,9 @@ export default function Read() {
                                       />
                                     ))}
                                   </Pie>
-                                  <Tooltip />
+                                  <PieTooltip />
                                 </PieChart>
-                              </ResponsiveContainer>
+                              </PieResponsiveContainer>
                             </div>
                           )}
                         </div>
