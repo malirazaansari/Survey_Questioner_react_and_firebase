@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import app from "../../../firebase/firebase";
 import { getDatabase, ref, get } from "firebase/database";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function Read() {
   const [surveyArray, setSurveyArray] = useState([]);
@@ -80,11 +81,11 @@ export default function Read() {
         setAnalyticsData(data);
       } else {
         console.log("No analytics data found.");
-        setAnalyticsData({}); // Clear analytics data
+        setAnalyticsData({});
       }
     } catch (error) {
       console.error("Error fetching analytics data:", error.message);
-      setAnalyticsData({}); // Clear analytics data on error
+      setAnalyticsData({});
     }
   };
 
@@ -92,6 +93,8 @@ export default function Read() {
     fetchSurveyData();
     fetchAnalyticsData();
   }, []);
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
   return (
     <div className="flex justify-center items-center m-12 p-12 bg-gray-100 min-h-screen">
@@ -160,6 +163,13 @@ export default function Read() {
                       const analytics =
                         analyticsData[survey.surveyKey]?.[item.questionText] ||
                         {};
+                      const pieData = item.options
+                        .map((option, idx) => ({
+                          name: option,
+                          value: analytics[option]?.count || 0,
+                        }))
+                        .filter(({ value }) => value > 0);
+
                       return (
                         <div
                           key={index}
@@ -183,6 +193,34 @@ export default function Read() {
                                 </li>
                               ))}
                           </ul>
+                          {pieData.length > 0 && (
+                            <div className="mt-4 bg-slate-200 rounded">
+                              <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                  <Pie
+                                    data={pieData}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={({ name, percent }) =>
+                                      `${name} ${(percent * 100).toFixed(0)}%`
+                                    }
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                  >
+                                    {pieData.map((entry, idx) => (
+                                      <Cell
+                                        key={`cell-${idx}`}
+                                        fill={COLORS[idx % COLORS.length]}
+                                      />
+                                    ))}
+                                  </Pie>
+                                  <Tooltip />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
