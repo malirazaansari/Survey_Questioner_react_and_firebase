@@ -8,12 +8,20 @@ import Home from "./components/home";
 import { AuthProvider } from "./contexts/authContext";
 // import { useRoutes } from "react-router-dom";
 
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import Write from "./components/home/Write/Write";
 import Read from "./components/home/Read/Read";
 import StudentSurvay from "./components/home/StudentSurvay/StudentSurvay";
 import Student from "./components/home/Student/Student";
 function App() {
+  const location = useLocation();
+  const hideHeaderRoutes = ["/StudentSurvay"];
+
   // const routesArray = [
   //   {
   //     path: "*",
@@ -35,8 +43,7 @@ function App() {
   // let routesElement = useRoutes(routesArray);
   return (
     <AuthProvider>
-      <Header />
-      {/* <div className="w-full h-screen flex flex-col">{routesElement}</div> */}
+      {!hideHeaderRoutes.includes(location.pathname) && <Header />}
       <div className="App">
         <Routes>
           <Route path="*" element={<Login />} />

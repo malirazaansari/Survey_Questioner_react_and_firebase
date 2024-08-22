@@ -117,35 +117,37 @@ export default function Read() {
   }));
 
   return (
-    <div className="flex justify-center items-center m-12 p-12 bg-gray-100 min-h-screen">
-      <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center mb-6">
+    <div className="flex justify-center items-center bg-gray-100 min-h-screen p-8">
+      <div className="w-full max-w-7xl bg-white rounded-xl shadow-lg p-10">
+        <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">
           Survey Questions & Analytics
         </h1>
 
-        <div className="flex space-x-6">
-          <div className="w-1/2">
-            <h2 className="text-2xl font-semibold mb-4">Survey Questions</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-700">
+              Survey Questions
+            </h2>
             <div className="space-y-6">
               {surveyArray.length > 0 ? (
                 surveyArray.map((survey, surveyIndex) => (
-                  <div key={surveyIndex}>
-                    <h3 className="text-xl font-semibold mb-2">
+                  <div key={surveyIndex} className="mb-6">
+                    <h3 className="text-xl font-semibold mb-4 text-gray-800">
                       {survey.name}
                     </h3>
                     {survey.questions.map((item, index) => (
                       <div
                         key={index}
-                        className="p-4 bg-gray-50 rounded-lg shadow-md mb-4"
+                        className="p-6 bg-gray-50 rounded-lg shadow-md mb-4 border border-gray-200"
                       >
-                        <p className="text-lg font-semibold mb-2">
+                        <p className="text-lg font-semibold mb-3 text-gray-700">
                           <strong>Question {index + 1}:</strong>{" "}
                           {item.questionText}
                         </p>
-                        <ul className="list-disc list-inside pl-4">
+                        <ul className="list-disc list-inside pl-4 space-y-1 text-gray-600">
                           {item.options.length > 0 ? (
                             item.options.map((option, idx) => (
-                              <li key={idx} className="text-gray-700">
+                              <li key={idx}>
                                 Option {idx + 1}: {option}
                               </li>
                             ))
@@ -167,32 +169,36 @@ export default function Read() {
             </div>
           </div>
 
-          <div className="w-1/2">
-            <h2 className="text-2xl font-semibold mb-4">Survey Analytics</h2>
+          <div>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-700">
+              Survey Analytics
+            </h2>
 
-            <div className="w-full mb-6">
-              <h2 className="text-2xl font-semibold mb-4">
+            <div className="w-full mb-8">
+              <h2 className="text-2xl font-semibold mb-6 text-gray-800">
                 Survey Submission Counts
               </h2>
-              <BarResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={barChartData}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <BarTooltip />
-                  <Bar dataKey="submissionCount" fill="#82ca9d" />
-                </BarChart>
-              </BarResponsiveContainer>
+              <div className="bg-gray-50 rounded-lg shadow-md p-6 border border-gray-200">
+                <BarResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={barChartData}
+                    margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <BarTooltip />
+                    <Bar dataKey="submissionCount" fill="#82ca9d" />
+                  </BarChart>
+                </BarResponsiveContainer>
+              </div>
             </div>
 
             <div className="space-y-6">
               {surveyArray.length > 0 ? (
                 surveyArray.map((survey, surveyIndex) => (
-                  <div key={surveyIndex}>
-                    <h3 className="text-xl font-semibold mb-2">
+                  <div key={surveyIndex} className="mb-6">
+                    <h3 className="text-xl font-semibold mb-4 text-gray-800">
                       {survey.name} - ({survey.submittedCount}{" "}
                       {survey.submittedCount === 1
                         ? "submission"
@@ -213,13 +219,13 @@ export default function Read() {
                       return (
                         <div
                           key={index}
-                          className="p-4 bg-gray-50 rounded-lg shadow-md mb-4"
+                          className="p-6 bg-gray-50 rounded-lg shadow-md mb-4 border border-gray-200"
                         >
-                          <p className="text-lg font-semibold mb-2">
+                          <p className="text-lg font-semibold mb-3 text-gray-700">
                             <strong>Question {index + 1}:</strong>{" "}
                             {item.questionText}
                           </p>
-                          <ul className="list-disc list-inside pl-4">
+                          <ul className="list-disc list-inside pl-4 space-y-1 text-gray-600">
                             {item.options
                               .map((option, idx) => ({
                                 option,
@@ -227,14 +233,14 @@ export default function Read() {
                               }))
                               .filter(({ count }) => count > 0)
                               .map(({ option, count }, idx) => (
-                                <li key={idx} className="text-gray-700">
+                                <li key={idx}>
                                   Option {idx + 1}: {option} - ({count}{" "}
                                   {count === 1 ? "submission" : "submissions"})
                                 </li>
                               ))}
                           </ul>
                           {pieData.length > 0 && (
-                            <div className="mt-4 bg-slate-200 rounded">
+                            <div className="mt-6 bg-white rounded-lg shadow-sm p-4">
                               <PieResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                   <Pie
