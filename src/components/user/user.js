@@ -213,7 +213,10 @@ const User = () => {
           <h1 className="text-3xl font-bold mb-4">Select a Survey</h1>
           <ul>
             {surveys.map((survey) => (
-              <li key={survey.id} className="mb-2">
+              <li
+                key={survey.id}
+                className="mb-2"
+              >
                 <button
                   className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
                   onClick={() => selectSurvey(survey.id)}
@@ -240,7 +243,10 @@ const User = () => {
                 </label>
                 <div className="flex flex-wrap -mx-4 mb-4">
                   {question.options.map((option) => (
-                    <div className="w-1/2 px-4 mb-4" key={option.key}>
+                    <div
+                      className="w-1/2 px-4 mb-4"
+                      key={option.key}
+                    >
                       <input
                         type={
                           question.allowsMultipleAnswers ? "checkbox" : "radio"
@@ -271,7 +277,7 @@ const User = () => {
                 {question.requiresAdditionalInput && (
                   <div>
                     <label className="block text-lg font-bold mb-2">
-                      Additional Input:
+                      Why you choose this option. any reason?:
                     </label>
                     <input
                       type="text"
@@ -299,7 +305,9 @@ const User = () => {
   } else if (isSubmitted) {
     nameContent = (
       <div className="max-w-md mx-auto p-8 bg-blue shadow-md rounded">
-        <h1 className="text-3xl font-bold mb-4">Thank you for submitting!</h1>
+        <h1 className="text-3xl font-bold mb-4">
+          Thank you for submitting the survey!
+        </h1>
       </div>
     );
   }
