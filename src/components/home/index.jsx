@@ -28,10 +28,10 @@ const Home = () => {
                   <Link to={"/Write"}>Add Questions</Link>
                 </button>
                 <button className="inline-block cursor-pointer mx-2 mb-0 px-5 py-3 border-0 font-bold text-lg text-white bg-gradient-to-b from-blue-400 to-blue-600 shadow-md">
-                  <Link to={"/Read"}>Veiw Added Questions</Link>
+                  <Link to={"/Read"}>Questions and Analytics</Link>
                 </button>
                 <button className="inline-block cursor-pointer mx-2 mb-0 px-5 py-3 border-0 font-bold text-lg text-white bg-gradient-to-b from-blue-400 to-blue-600 shadow-md">
-                  <Link to={"/StudentSurvay"}>Genrate Survay Link</Link>
+                  <Link to={"/StudentSurvay"}>Survay Link</Link>
                 </button>
                 <button className="inline-block cursor-pointer mx-2 mb-0 px-5 py-3 border-0 font-bold text-lg text-white bg-gradient-to-b from-blue-400 to-blue-600 shadow-md">
                   <Link to={"/Student"}>Veiw Submits</Link>
