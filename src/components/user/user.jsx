@@ -329,7 +329,9 @@ import { database } from "../../firebase/firebase";
 import { v1 as uuidv1 } from "uuid";
 
 const User = () => {
-  const [uid] = useState(uuidv1());
+  // const [uid] = useState(uuidv1());
+  const [uid, setUid] = useState(null);
+
   const [studentName, setStudentName] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
   const [answers, setAnswers] = useState({});
@@ -364,8 +366,8 @@ const User = () => {
     });
   };
 
-  const fetchSubmittedSurveys = () => {
-    const submissionsRef = ref(database, `posts/survayanswers/${uid}`);
+  const fetchSubmittedSurveys = (userId) => {
+    const submissionsRef = ref(database, `posts/survayanswers/${userId}`);
 
     onValue(submissionsRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -409,6 +411,25 @@ const User = () => {
     fetchQuestions(surveyId);
   };
 
+  // const studentNameSubmit = (event) => {
+  //   event.preventDefault();
+  //   const name = nameInputRef.current.value;
+  //   const email = emailInputRef.current.value;
+  //   if (!name || !email) {
+  //     alert("Please fill in both your name and email.");
+  //     return;
+  //   }
+  //   setStudentName(name);
+  //   setStudentEmail(email);
+
+  //   // Save the student's name and email under their UID
+  //   const userRef = ref(database, `posts/survayanswers/${uid}`);
+  //   set(userRef, {
+  //     studentName: name,
+  //     studentEmail: email,
+  //   }).then(() => fetchSubmittedSurveys());
+  // };
+
   const studentNameSubmit = (event) => {
     event.preventDefault();
     const name = nameInputRef.current.value;
@@ -417,15 +438,48 @@ const User = () => {
       alert("Please fill in both your name and email.");
       return;
     }
-    setStudentName(name);
-    setStudentEmail(email);
 
-    // Save the student's name and email under their UID
-    const userRef = ref(database, `posts/survayanswers/${uid}`);
-    set(userRef, {
-      studentName: name,
-      studentEmail: email,
-    }).then(() => fetchSubmittedSurveys());
+    // Search for existing users with the same name and email
+    const usersRef = ref(database, "posts/survayanswers");
+    onValue(usersRef, (snapshot) => {
+      let existingUserId = null;
+      const data = snapshot.val();
+
+      if (data) {
+        // Iterate through all users to find a match
+        for (const [userId, userInfo] of Object.entries(data)) {
+          if (
+            userInfo.studentName === name &&
+            userInfo.studentEmail === email
+          ) {
+            existingUserId = userId;
+            break;
+          }
+        }
+      }
+
+      if (existingUserId) {
+        // User exists, set the existing user ID
+        setStudentName(name);
+        setStudentEmail(email);
+        setUid(existingUserId);
+        fetchSubmittedSurveys(existingUserId); // Fetch previous submissions
+      } else {
+        // No existing user, create a new user ID
+        const newUserId = uuidv1();
+        set(ref(database, `posts/survayanswers/${newUserId}`), {
+          studentName: name,
+          studentEmail: email,
+        })
+          .then(() => {
+            setStudentName(name);
+            setStudentEmail(email);
+            setUid(newUserId);
+            fetchSurveys(); // Fetch surveys after creating a new user
+          })
+          .catch((error) => console.error("Error creating new user:", error));
+      }
+    });
   };
 
   const surveySubmit = (event) => {
