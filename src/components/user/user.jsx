@@ -329,7 +329,6 @@ import { database } from "../../firebase/firebase";
 import { v1 as uuidv1 } from "uuid";
 
 const User = () => {
-  // const [uid] = useState(uuidv1());
   const [uid, setUid] = useState(null);
 
   const [studentName, setStudentName] = useState("");
@@ -339,7 +338,7 @@ const User = () => {
   const [surveys, setSurveys] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [submittedSurveys, setSubmittedSurveys] = useState([]);
-  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
+  const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [previousSubmissions, setPreviousSubmissions] = useState([]);
   const nameInputRef = useRef(null);
   const emailInputRef = useRef(null);
@@ -359,7 +358,7 @@ const User = () => {
           name: data[key].name,
         }));
         setSurveys(surveys);
-        fetchSubmittedSurveys();
+        fetchSubmittedSurveys(uid);
       } else {
         console.log("No surveys available.");
       }
@@ -367,6 +366,8 @@ const User = () => {
   };
 
   const fetchSubmittedSurveys = (userId) => {
+    if (!userId) return;
+
     const submissionsRef = ref(database, `posts/survayanswers/${userId}`);
 
     onValue(submissionsRef, (snapshot) => {
@@ -406,29 +407,10 @@ const User = () => {
     });
   };
 
-  const selectSurvey = (surveyId) => {
-    setSelectedSurveyId(surveyId);
-    fetchQuestions(surveyId);
+  const selectSurvey = (survey) => {
+    setSelectedSurvey(survey);
+    fetchQuestions(survey.id);
   };
-
-  // const studentNameSubmit = (event) => {
-  //   event.preventDefault();
-  //   const name = nameInputRef.current.value;
-  //   const email = emailInputRef.current.value;
-  //   if (!name || !email) {
-  //     alert("Please fill in both your name and email.");
-  //     return;
-  //   }
-  //   setStudentName(name);
-  //   setStudentEmail(email);
-
-  //   // Save the student's name and email under their UID
-  //   const userRef = ref(database, `posts/survayanswers/${uid}`);
-  //   set(userRef, {
-  //     studentName: name,
-  //     studentEmail: email,
-  //   }).then(() => fetchSubmittedSurveys());
-  // };
 
   const studentNameSubmit = (event) => {
     event.preventDefault();
@@ -439,14 +421,12 @@ const User = () => {
       return;
     }
 
-    // Search for existing users with the same name and email
     const usersRef = ref(database, "posts/survayanswers");
     onValue(usersRef, (snapshot) => {
       let existingUserId = null;
       const data = snapshot.val();
 
       if (data) {
-        // Iterate through all users to find a match
         for (const [userId, userInfo] of Object.entries(data)) {
           if (
             userInfo.studentName === name &&
@@ -459,13 +439,11 @@ const User = () => {
       }
 
       if (existingUserId) {
-        // User exists, set the existing user ID
         setStudentName(name);
         setStudentEmail(email);
         setUid(existingUserId);
-        fetchSubmittedSurveys(existingUserId); // Fetch previous submissions
+        fetchSubmittedSurveys(existingUserId);
       } else {
-        // No existing user, create a new user ID
         const newUserId = uuidv1();
         set(ref(database, `posts/survayanswers/${newUserId}`), {
           studentName: name,
@@ -475,7 +453,7 @@ const User = () => {
             setStudentName(name);
             setStudentEmail(email);
             setUid(newUserId);
-            fetchSurveys(); // Fetch surveys after creating a new user
+            fetchSurveys();
           })
           .catch((error) => console.error("Error creating new user:", error));
       }
@@ -485,8 +463,13 @@ const User = () => {
   const surveySubmit = (event) => {
     event.preventDefault();
 
+    if (!selectedSurvey) {
+      alert("Please select a survey.");
+      return;
+    }
+
     for (let i = 0; i < questions.length; i++) {
-      const answerKey = `ans${i + 1}_${selectedSurveyId}`;
+      const answerKey = `ans${i + 1}_${selectedSurvey.id}`;
       if (!answers[answerKey] || !answers[answerKey].selectedAnswer) {
         alert(`Please answer question ${i + 1}.`);
         return;
@@ -497,7 +480,7 @@ const User = () => {
     const updates = {};
 
     questions.forEach((question, index) => {
-      const answerKey = `ans${index + 1}_${selectedSurveyId}`;
+      const answerKey = `ans${index + 1}_${selectedSurvey.id}`;
       const selectedAnswer = answers[answerKey]?.selectedAnswer || "";
       const additionalInput = answers[answerKey]?.additionalInput || "";
       const questionText = question.questionText;
@@ -511,31 +494,31 @@ const User = () => {
       if (question.allowsMultipleAnswers) {
         if (Array.isArray(selectedAnswer)) {
           selectedAnswer.forEach((ans) => {
-            updates[`/analytics/${selectedSurveyId}/${questionText}/${ans}`] = {
-              count: increment(1),
-            };
+            updates[`/analytics/${selectedSurvey.id}/${questionText}/${ans}`] =
+              {
+                count: increment(1),
+              };
           });
         }
       } else {
         updates[
-          `/analytics/${selectedSurveyId}/${questionText}/${selectedAnswer}`
+          `/analytics/${selectedSurvey.id}/${questionText}/${selectedAnswer}`
         ] = {
           count: increment(1),
         };
       }
     });
 
-    // Save answers under the specific survey ID in the user's data
     const userSurveyRef = ref(
       database,
-      `posts/survayanswers/${uid}/${selectedSurveyId}`
+      `posts/survayanswers/${uid}/${selectedSurvey.id}`
     );
     set(userSurveyRef, {
       answers: allAnswers,
     })
       .then(() => {
         return update(
-          ref(database, `posts/surveys/${selectedSurveyId}/submissionCount`),
+          ref(database, `posts/surveys/${selectedSurvey.id}/submissionCount`),
           {
             count: increment(1),
           }
@@ -548,7 +531,7 @@ const User = () => {
 
   const answerSelected = (event, questionIndex) => {
     const { value, type, checked } = event.target;
-    const answerKey = `ans${questionIndex + 1}_${selectedSurveyId}`;
+    const answerKey = `ans${questionIndex + 1}_${selectedSurvey.id}`;
 
     setAnswers((prevAnswers) => ({
       ...prevAnswers,
@@ -570,7 +553,7 @@ const User = () => {
 
   const additionalInputChanged = (event, questionIndex) => {
     const { value } = event.target;
-    const answerKey = `ans${questionIndex + 1}_${selectedSurveyId}`;
+    const answerKey = `ans${questionIndex + 1}_${selectedSurvey.id}`;
 
     setAnswers((prevAnswers) => ({
       ...prevAnswers,
@@ -621,60 +604,57 @@ const User = () => {
     if (previousSubmissions.length > 0) {
       previousSubmissionsContent = (
         <div>
-          <h1 className="text-3xl font-bold mb-4">Your Previous Submissions</h1>
+          <h2 className="text-2xl font-bold mb-4">Previous Submissions</h2>
           <ul>
             {previousSubmissions.map((submission) => (
               <li
                 key={submission.id}
                 className="mb-4"
               >
-                <h2 className="text-xl font-bold mb-2">
-                  Survey ID: {submission.id}
-                </h2>
-                {Object.keys(submission.answers).map((questionKey) => (
-                  <div
-                    key={questionKey}
-                    className="mb-2"
-                  >
-                    <h3 className="text-lg font-semibold">
-                      Question: {submission.answers[questionKey].questionText}
-                    </h3>
-                    <p>
-                      Selected Answer(s):{" "}
-                      {Array.isArray(
-                        submission.answers[questionKey].selectedAnswer
-                      )
-                        ? submission.answers[questionKey].selectedAnswer.join(
-                            ", "
-                          )
-                        : submission.answers[questionKey].selectedAnswer}
-                    </p>
-                    {submission.answers[questionKey].additionalInput && (
-                      <p>
-                        Additional Input:{" "}
-                        {submission.answers[questionKey].additionalInput}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                <div className="bg-gray-400 p-4 rounded shadow">
+                  <h3 className="text-xl font-semibold">
+                    Survey ID: {submission.id}
+                  </h3>
+                  {Object.keys(submission.answers).map((key, index) => {
+                    const answer = submission.answers[key];
+                    const selectedAnswer = Array.isArray(answer.selectedAnswer)
+                      ? answer.selectedAnswer
+                      : [answer.selectedAnswer];
+
+                    return (
+                      <div
+                        key={index}
+                        className="mb-2"
+                      >
+                        <p className="font-medium">Question {index + 1}:</p>
+                        <p>Selected Answers: {selectedAnswer.join(", ")}</p>
+                        {answer.additionalInput && (
+                          <p>Additional Input: {answer.additionalInput}</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </li>
             ))}
           </ul>
         </div>
       );
-    } else if (!selectedSurveyId) {
+    }
+
+    if (surveys.length > 0) {
       surveysContent = (
         <div>
-          <h1 className="text-3xl font-bold mb-4">Select a Survey</h1>
+          <h2 className="text-2xl font-bold mb-4">Available Surveys</h2>
           <ul>
             {surveys.map((survey) => (
               <li
                 key={survey.id}
-                className="mb-2"
+                className="mb-4"
               >
                 <button
-                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => selectSurvey(survey.id)}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => selectSurvey(survey)}
                 >
                   {survey.name}
                 </button>
@@ -683,78 +663,75 @@ const User = () => {
           </ul>
         </div>
       );
-    } else {
+    }
+
+    if (questions.length > 0) {
       questionsContent = (
         <div>
-          <h1 className="text-3xl font-bold mb-4">Here are some questions.</h1>
+          <h2 className="text-2xl font-bold mb-4">Survey Questions</h2>
           <form onSubmit={surveySubmit}>
             {questions.map((question, index) => (
               <div
                 key={index}
-                className="w-6/12 p-5 bg-white shadow-md mx-auto opacity-100 text-black leading-49 border border-gray-300 rounded-lg"
+                className="mb-4"
               >
-                <label className="block text-lg font-bold mb-2">
-                  Question {index + 1}: {question.questionText}
-                </label>
-                <div className="flex flex-wrap -mx-4 mb-4">
-                  {question.options.map((option) => (
-                    <div
-                      className="w-1/2 px-4 mb-4"
-                      key={option.key}
+                <p className="text-lg font-semibold">{question.questionText}</p>
+                {question.options.map((option) => (
+                  <div
+                    key={option.key}
+                    className="flex items-center mb-2"
+                  >
+                    <input
+                      type={
+                        question.allowsMultipleAnswers ? "checkbox" : "radio"
+                      }
+                      id={`${question.key}_${option.key}`}
+                      name={`question_${index}`}
+                      value={option.value}
+                      onChange={(event) => answerSelected(event, index)}
+                    />
+                    <label
+                      htmlFor={`${question.key}_${option.key}`}
+                      className="ml-2"
                     >
-                      <input
-                        type={
-                          question.allowsMultipleAnswers ? "checkbox" : "radio"
-                        }
-                        id={`q${index}_opt${option.key}`}
-                        name={`q${index}`}
-                        value={option.value}
-                        onChange={(e) => answerSelected(e, index)}
-                        className="mr-2"
-                      />
-                      <label htmlFor={`q${index}_opt${option.key}`}>
-                        {option.value}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                      {option.value}
+                    </label>
+                  </div>
+                ))}
                 {question.requiresAdditionalInput && (
-                  <input
-                    type="text"
-                    placeholder="Additional Input"
-                    onChange={(e) => additionalInputChanged(e, index)}
-                    className="text-lg text-gray-700 border border-gray-300 rounded p-2 w-full"
-                  />
+                  <div className="mt-2">
+                    <textarea
+                      rows="3"
+                      placeholder="Additional input"
+                      onChange={(event) => additionalInputChanged(event, index)}
+                      className="w-full border border-gray-300 rounded p-2"
+                    />
+                  </div>
                 )}
               </div>
             ))}
             <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
               type="submit"
-              className="mt-4 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
             >
-              Submit Answers
+              Submit
             </button>
           </form>
         </div>
       );
     }
   } else if (isSubmitted) {
-    return (
-      <div className="max-w-md mx-auto p-8 bg-blue shadow-md rounded text-center">
-        <h1 className="text-3xl font-bold mb-4">
-          Thank you for completing the survey!
-        </h1>
-        <p className="text-lg">Your responses have been recorded.</p>
-      </div>
+    nameContent = (
+      <p className="text-xl font-semibold">Survey submitted successfully!</p>
     );
   }
 
   return (
-    <div>
+    <div className="container mx-auto p-4">
       {nameContent}
-      {previousSubmissionsContent}
       {surveysContent}
       {questionsContent}
+      {previousSubmissionsContent}
     </div>
   );
 };
