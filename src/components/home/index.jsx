@@ -20,8 +20,7 @@ const Home = () => {
               <p className="text-sm opacity-80 mb-6">
                 Tation argumentum et usu, dicit viderer evertitur te has. Eu
                 dictas concludaturque usu, facete detracto patrioque an per,
-                lucilius pertinacia eu vel. Adhuc invidunt duo ex. Eu tantas
-                dolorum ullamcorper qui.
+                lucilius pertinacia eu vel.
               </p>
               <div className="flex gap-3">
                 <button className="inline-block cursor-pointer mx-2 mb-0 px-5 py-3 border-0 font-bold text-lg text-white bg-gradient-to-b from-blue-400 to-blue-600 shadow-md">

@@ -24,7 +24,7 @@ const Header = () => {
         </span>
         {userLoggedIn && (
           <span className="ml-4 text-lg font-bold text-yellow-500">
-            <Link to={"/home"}>Admin page</Link>
+            <Link to={"/home"}>Admin's Page</Link>
           </span>
         )}
       </div>
