@@ -15,7 +15,7 @@ const Home = () => {
                 />
               </figure>
               <h2 className="text-white text-2xl mb-4 font-normal">
-                Survey Page
+                Survey Main Page
               </h2>
               <p className="text-sm opacity-80 mb-6">
                 Tation argumentum et usu, dicit viderer evertitur te has. Eu
